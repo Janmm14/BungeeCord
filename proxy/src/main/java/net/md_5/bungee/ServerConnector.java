@@ -179,7 +179,8 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handleLogin(PacketWrapper<Login> packet) throws Exception
     {
-        if (thisState != State.LOGIN) {
+        if ( thisState != State.LOGIN )
+        {
             disconnect( "Not expecting LOGIN" );
             return;
         }

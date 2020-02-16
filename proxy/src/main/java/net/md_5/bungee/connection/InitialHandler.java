@@ -85,6 +85,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private State thisState = State.HANDSHAKE;
     private final Unsafe unsafe = new Unsafe()
     {
+
         @Override
         public void sendPacket(DefinedPacket<?> packet)
         {
@@ -191,6 +192,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
         {
+
             @Override
             public void done(ProxyPingEvent result, Throwable error)
             {
@@ -255,6 +257,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         Callback<ServerPing> pingBack = new Callback<ServerPing>()
         {
+
             @Override
             public void done(ServerPing result, Throwable error)
             {
@@ -266,6 +269,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 Callback<ProxyPingEvent> callback = new Callback<ProxyPingEvent>()
                 {
+
                     @Override
                     public void done(ProxyPingEvent pingResult, Throwable error)
                     {
@@ -331,11 +335,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         // add their own data to the end of the string. So, we just take everything from the \0 character
         // and save it for later.
         String handshakeHost = handshake.getHost();
-        if ( handshakeHost.indexOf( '\0' ) > -1)
+        if ( handshakeHost.indexOf( '\0' ) > -1 )
         {
             String[] split = handshakeHost.split( "\0", 2 );
-            handshake.setHost( handshakeHost = split[ 0 ] );
-            extraDataInHandshake = "\0" + split[ 1 ];
+            handshake.setHost( handshakeHost = split[0] );
+            extraDataInHandshake = "\0" + split[1];
         }
 
         // SRV records can end with a . depending on DNS / client.
@@ -501,6 +505,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         Callback<String> handler = new Callback<String>()
         {
+
             @Override
             public void done(String result, Throwable error)
             {
@@ -579,6 +584,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
         Callback<LoginEvent> complete = new Callback<LoginEvent>()
         {
+
             @Override
             public void done(LoginEvent result, Throwable error)
             {
@@ -594,6 +600,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 ch.getHandle().eventLoop().execute( new Runnable()
                 {
+
                     @Override
                     public void run()
                     {

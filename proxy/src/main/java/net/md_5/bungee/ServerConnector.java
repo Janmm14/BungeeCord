@@ -305,7 +305,7 @@ public class ServerConnector extends PacketHandler
 
         thisState = State.FINISHED;
 
-//        throw CancelSendSignal.INSTANCE; //TODO see line 171
+        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override
@@ -341,7 +341,7 @@ public class ServerConnector extends PacketHandler
             user.sendMessage( message );
         }
 
-//        throw CancelSendSignal.INSTANCE; //TODO see line 171
+        // throw CancelSendSignal.INSTANCE; //TODO see line 171
     }
 
     @Override

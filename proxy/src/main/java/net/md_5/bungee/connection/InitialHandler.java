@@ -365,14 +365,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 ch.setProtocol( Protocol.STATUS );
                 if ( bungee.getConfig().isLogPings() )
                 {
-                    bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has pinged", new Object[]{ this, handshake.getProtocolVersion() } );
+                    bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has pinged", new Object[]
+                    {
+                        this, handshake.getProtocolVersion()
+                    } );
                 }
                 break;
             case 2:
                 // Login
                 thisState = State.USERNAME;
                 ch.setProtocol( Protocol.LOGIN );
-                bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has connected", new Object[]{ this, handshake.getProtocolVersion() } );
+                bungee.getLogger().log( Level.INFO, "{0} (protocol {1}) has connected", new Object[]
+                {
+                    this, handshake.getProtocolVersion()
+                } );
 
                 if ( !ProtocolConstants.SUPPORTED_VERSION_IDS.contains( handshake.getProtocolVersion() ) )
                 {

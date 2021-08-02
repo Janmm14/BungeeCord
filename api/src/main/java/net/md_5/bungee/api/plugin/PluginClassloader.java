@@ -11,6 +11,7 @@ import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -125,10 +126,18 @@ final class PluginClassloader extends URLClassLoader
                     {
                         if ( manifest != null )
                         {
+                            String manifestSectionName = pkgName.replace( '.', '/' );
+                            Attributes attributes = manifest.getEntries().computeIfAbsent( manifestSectionName, k -> new Attributes() );
+                            putIfAbsent( attributes, "Specification-Title", desc.getName() );
+                            putIfAbsent( attributes, "Specification-Version", desc.getVersion() );
+                            putIfAbsent( attributes, "Specification-Vendor", desc.getAuthor() );
+                            putIfAbsent( attributes, "Implementation-Title", jar.getName() );
+                            putIfAbsent( attributes, "Specification-Version", desc.getVersion() );
+                            putIfAbsent( attributes, "Specification-Vendor", desc.getAuthor() );
                             definePackage( pkgName, manifest, url );
                         } else
                         {
-                            definePackage( pkgName, null, null, null, null, null, null, null );
+                            definePackage( pkgName, desc.getName(), desc.getVersion(), desc.getAuthor(), jar.getName(), desc.getVersion(), desc.getAuthor(), null );
                         }
                     } catch ( IllegalArgumentException ex )
                     {
@@ -147,6 +156,14 @@ final class PluginClassloader extends URLClassLoader
         }
 
         return super.findClass( name );
+    }
+
+    private static void putIfAbsent(Attributes attributes, String key, String value)
+    {
+        if ( !attributes.containsKey( key ) )
+        {
+            attributes.putValue( key, value );
+        }
     }
 
     @Override

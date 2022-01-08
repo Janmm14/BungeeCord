@@ -50,7 +50,9 @@ public class PipelineUtils
 {
 
     public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.valueOf( "ListerInfo" );
+    @Deprecated
     public static final AttributeKey<UserConnection> USER = AttributeKey.valueOf( "User" );
+    @Deprecated
     public static final AttributeKey<BungeeServerInfo> TARGET = AttributeKey.valueOf( "Target" );
     public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>()
     {

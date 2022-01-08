@@ -9,6 +9,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class EntityMap_1_16_2 extends EntityMap
@@ -23,8 +24,10 @@ class EntityMap_1_16_2 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId, int protocolVersion)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -38,6 +41,7 @@ class EntityMap_1_16_2 extends EntityMap
             ProxiedPlayer player;
             if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
             {
+                wrapper.destroyCompressed();
                 int previous = packet.writerIndex();
                 packet.readerIndex( readerIndex );
                 packet.writerIndex( readerIndex + packetIdLength + idLength );
@@ -49,8 +53,10 @@ class EntityMap_1_16_2 extends EntityMap
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -62,6 +68,7 @@ class EntityMap_1_16_2 extends EntityMap
             ProxiedPlayer player;
             if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
             {
+                wrapper.destroyCompressed();
                 int previous = packet.writerIndex();
                 packet.readerIndex( readerIndex );
                 packet.writerIndex( readerIndex + packetIdLength );

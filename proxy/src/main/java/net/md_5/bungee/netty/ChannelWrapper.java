@@ -54,7 +54,7 @@ public class ChannelWrapper
             if ( packet instanceof PacketWrapper )
             {
                 ( (PacketWrapper) packet ).setReleased( true );
-                ch.writeAndFlush( ( (PacketWrapper) packet ).buf, ch.voidPromise() );
+                ch.writeAndFlush( ( (PacketWrapper) packet ), ch.voidPromise() );
             } else
             {
                 ch.writeAndFlush( packet, ch.voidPromise() );
@@ -124,25 +124,26 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
-        if ( ch.pipeline().get( PacketCompressor.class ) == null && compressionThreshold != -1 )
-        {
-            addBefore( PipelineUtils.PACKET_ENCODER, "compress", new PacketCompressor() );
-        }
         if ( compressionThreshold != -1 )
         {
-            ch.pipeline().get( PacketCompressor.class ).setThreshold( compressionThreshold );
+            PacketCompressor compressor = ch.pipeline().get( PacketCompressor.class );
+            if ( compressor == null )
+            {
+                compressor = new PacketCompressor();
+                addBefore( PipelineUtils.PACKET_ENCODER, "compress", compressor );
+            }
+            compressor.setThreshold( compressionThreshold );
+            PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
+            if ( decompressor == null )
+            {
+                decompressor = new PacketDecompressor();
+                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor );
+            }
+            decompressor.setThreshold( compressionThreshold );
         } else
         {
-            ch.pipeline().remove( "compress" );
-        }
-
-        if ( ch.pipeline().get( PacketDecompressor.class ) == null && compressionThreshold != -1 )
-        {
-            addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
-        }
-        if ( compressionThreshold == -1 )
-        {
             ch.pipeline().remove( "decompress" );
+            ch.pipeline().remove( "compress" );
         }
     }
 }

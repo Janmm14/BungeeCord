@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import se.llbit.nbt.NamedTag;
 import se.llbit.nbt.Tag;
@@ -83,60 +84,74 @@ public abstract class EntityMap
         {
             if ( varint )
             {
-                clientboundVarInts[id] = true;
+                clientboundVarInts[ id ] = true;
             } else
             {
-                clientboundInts[id] = true;
+                clientboundInts[ id ] = true;
             }
         } else if ( varint )
         {
-            serverboundVarInts[id] = true;
+            serverboundVarInts[ id ] = true;
         } else
         {
-            serverboundInts[id] = true;
+            serverboundInts[ id ] = true;
         }
     }
 
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper packet, int oldId, int newId)
     {
         rewrite( packet, oldId, newId, serverboundInts, serverboundVarInts );
     }
 
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteServerbound(PacketWrapper packet, int oldId, int newId, int protocolVersion)
     {
         rewriteServerbound( packet, oldId, newId );
     }
 
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteClientbound(PacketWrapper packet, int oldId, int newId)
     {
         rewrite( packet, oldId, newId, clientboundInts, clientboundVarInts );
     }
 
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId, int protocolVersion)
+    public void rewriteClientbound(PacketWrapper packet, int oldId, int newId, int protocolVersion)
     {
         rewriteClientbound( packet, oldId, newId );
     }
 
-    protected static void rewriteInt(ByteBuf packet, int oldId, int newId, int offset)
+    protected static void rewriteInt(PacketWrapper wrapper, int oldId, int newId, int offset)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        ByteBuf packet = wrapper.buf;
         int readId = packet.getInt( offset );
         if ( readId == oldId )
         {
+            wrapper.destroyCompressed();
             packet.setInt( offset, newId );
         } else if ( readId == newId )
         {
+            wrapper.destroyCompressed();
             packet.setInt( offset, oldId );
         }
     }
 
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    protected static void rewriteVarInt(ByteBuf packet, int oldId, int newId, int offset)
+    protected static void rewriteVarInt(PacketWrapper wrapper, int oldId, int newId, int offset)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        ByteBuf packet = wrapper.buf;
         // Need to rewrite the packet because VarInts are variable length
         int readId = DefinedPacket.readVarInt( packet );
-        int readIdLength = packet.readerIndex() - offset;
+        int readIdLength = packet.readerIndex() - offset; // intentionally unused
         if ( readId == oldId || readId == newId )
         {
+            wrapper.destroyCompressed();
+
             ByteBuf data = packet.copy();
             packet.readerIndex( offset );
             packet.writerIndex( offset );
@@ -146,13 +161,18 @@ public abstract class EntityMap
         }
     }
 
-    protected static void rewriteMetaVarInt(ByteBuf packet, int oldId, int newId, int metaIndex)
+    protected static void rewriteMetaVarInt(PacketWrapper wrapper, int oldId, int newId, int metaIndex)
     {
-        rewriteMetaVarInt( packet, oldId, newId, metaIndex, -1 );
+        rewriteMetaVarInt( wrapper, oldId, newId, metaIndex, -1 );
     }
 
-    protected static void rewriteMetaVarInt(ByteBuf packet, int oldId, int newId, int metaIndex, int protocolVersion)
+    protected static void rewriteMetaVarInt(PacketWrapper wrapper, int oldId, int newId, int metaIndex, int protocolVersion)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        ByteBuf packet = wrapper.buf;
         int readerIndex = packet.readerIndex();
 
         short index;
@@ -222,7 +242,7 @@ public abstract class EntityMap
                     if ( index == metaIndex )
                     {
                         int position = packet.readerIndex();
-                        rewriteVarInt( packet, oldId, newId, position );
+                        rewriteVarInt( wrapper, oldId, newId, position );
                         packet.readerIndex( position );
                     }
                     DefinedPacket.readVarInt( packet );
@@ -280,7 +300,7 @@ public abstract class EntityMap
                     if ( index == metaIndex )
                     {
                         int position = packet.readerIndex();
-                        rewriteVarInt( packet, oldId + 1, newId + 1, position );
+                        rewriteVarInt( wrapper, oldId + 1, newId + 1, position );
                         packet.readerIndex( position );
                     }
                     DefinedPacket.readVarInt( packet );
@@ -321,18 +341,23 @@ public abstract class EntityMap
     }
 
     // Handles simple packets
-    private static void rewrite(ByteBuf packet, int oldId, int newId, boolean[] ints, boolean[] varints)
+    private static void rewrite(PacketWrapper wrapper, int oldId, int newId, boolean[] ints, boolean[] varints)
     {
+        if ( oldId == newId )
+        {
+            return;
+        }
+        ByteBuf packet = wrapper.buf;
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
         int packetIdLength = packet.readerIndex() - readerIndex;
 
-        if ( ints[packetId] )
+        if ( ints[ packetId ] )
         {
-            rewriteInt( packet, oldId, newId, readerIndex + packetIdLength );
-        } else if ( varints[packetId] )
+            rewriteInt( wrapper, oldId, newId, readerIndex + packetIdLength );
+        } else if ( varints[ packetId ] )
         {
-            rewriteVarInt( packet, oldId, newId, readerIndex + packetIdLength );
+            rewriteVarInt( wrapper, oldId, newId, readerIndex + packetIdLength );
         }
         packet.readerIndex( readerIndex );
     }

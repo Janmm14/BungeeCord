@@ -6,18 +6,37 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 @ChannelHandler.Sharable
-public class Varint21LengthFieldPrepender extends MessageToByteEncoder<ByteBuf>
+public class Varint21LengthFieldPrepender extends MessageToByteEncoder<Object>
 {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception
+    public boolean acceptOutboundMessage(Object msg) throws Exception
     {
+        return msg instanceof ByteBuf || msg instanceof PacketWrapper;
+    }
+
+    @Override
+    protected void encode(ChannelHandlerContext ctx, Object msgObj, ByteBuf out) throws Exception
+    {
+        ByteBuf msg;
+        boolean isPacketWrapper = msgObj instanceof PacketWrapper;
+        if ( isPacketWrapper )
+        {
+            msg = ( (PacketWrapper) msgObj ).buf;
+        } else
+        {
+            msg = (ByteBuf) msgObj;
+        }
         int bodyLen = msg.readableBytes();
         int headerLen = varintSize( bodyLen );
         out.ensureWritable( headerLen + bodyLen );
 
         DefinedPacket.writeVarInt( bodyLen, out );
         out.writeBytes( msg );
+        if ( isPacketWrapper )
+        {
+            msg.release();
+        }
     }
 
     private static int varintSize(int paramInt)

@@ -7,6 +7,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.DefinedPacket;
+import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.ProtocolConstants;
 
 class EntityMap_1_11 extends EntityMap
@@ -48,9 +49,10 @@ class EntityMap_1_11 extends EntityMap
 
     @Override
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
-    public void rewriteClientbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteClientbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteClientbound( packet, oldId, newId );
+        super.rewriteClientbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
 
         // Special cases
         int readerIndex = packet.readerIndex();
@@ -60,17 +62,18 @@ class EntityMap_1_11 extends EntityMap
         switch ( packetId )
         {
             case 0x3A /* Attach Entity : PacketPlayOutAttachEntity */:
-                rewriteInt( packet, oldId, newId, readerIndex + packetIdLength + 4 );
+                rewriteInt( wrapper, oldId, newId, readerIndex + packetIdLength + 4 );
                 break;
             case 0x48 /* Collect Item : PacketPlayOutCollect */:
                 DefinedPacket.readVarInt( packet );
-                rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                 break;
             case 0x40 /* Attach Entity : PacketPlayOutMount */:
                 DefinedPacket.readVarInt( packet );
                 jumpIndex = packet.readerIndex();
             // Fall through on purpose to int array of IDs
             case 0x30 /* Destroy Entities : PacketPlayOutEntityDestroy */:
+                wrapper.destroyCompressed();
                 int count = DefinedPacket.readVarInt( packet );
                 int[] ids = new int[ count ];
                 for ( int i = 0; i < count; i++ )
@@ -110,9 +113,11 @@ class EntityMap_1_11 extends EntityMap
                     int readId = packet.readInt();
                     if ( readId == oldId )
                     {
+                        wrapper.destroyCompressed();
                         packet.setInt( position, newId );
                     } else if ( readId == newId )
                     {
+                        wrapper.destroyCompressed();
                         packet.setInt( position, oldId );
                     }
                 }
@@ -124,6 +129,7 @@ class EntityMap_1_11 extends EntityMap
                 ProxiedPlayer player;
                 if ( ( player = BungeeCord.getInstance().getPlayerByOfflineUUID( uuid ) ) != null )
                 {
+                    wrapper.destroyCompressed();
                     int previous = packet.writerIndex();
                     packet.readerIndex( readerIndex );
                     packet.writerIndex( readerIndex + packetIdLength + idLength );
@@ -136,30 +142,32 @@ class EntityMap_1_11 extends EntityMap
                 if ( event == 1 /* End Combat*/ )
                 {
                     DefinedPacket.readVarInt( packet );
-                    rewriteInt( packet, oldId, newId, packet.readerIndex() );
+                    rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
                 } else if ( event == 2 /* Entity Dead */ )
                 {
                     int position = packet.readerIndex();
-                    rewriteVarInt( packet, oldId, newId, packet.readerIndex() );
+                    rewriteVarInt( wrapper, oldId, newId, packet.readerIndex() );
                     packet.readerIndex( position );
                     DefinedPacket.readVarInt( packet );
-                    rewriteInt( packet, oldId, newId, packet.readerIndex() );
+                    rewriteInt( wrapper, oldId, newId, packet.readerIndex() );
                 }
                 break;
             case 0x39 /* EntityMetadata : PacketPlayOutEntityMetadata */:
                 DefinedPacket.readVarInt( packet ); // Entity ID
-                rewriteMetaVarInt( packet, oldId + 1, newId + 1, 6 ); // fishing hook
-                rewriteMetaVarInt( packet, oldId, newId, 7 ); // fireworks (et al)
-                rewriteMetaVarInt( packet, oldId, newId, 13 ); // guardian beam
+                rewriteMetaVarInt( wrapper, oldId + 1, newId + 1, 6 ); // fishing hook
+                rewriteMetaVarInt( wrapper, oldId, newId, 7 ); // fireworks (et al)
+                rewriteMetaVarInt( wrapper, oldId, newId, 13 ); // guardian beam
                 break;
         }
         packet.readerIndex( readerIndex );
     }
 
     @Override
-    public void rewriteServerbound(ByteBuf packet, int oldId, int newId)
+    public void rewriteServerbound(PacketWrapper wrapper, int oldId, int newId)
     {
-        super.rewriteServerbound( packet, oldId, newId );
+        super.rewriteServerbound( wrapper, oldId, newId );
+        ByteBuf packet = wrapper.buf;
+
         // Special cases
         int readerIndex = packet.readerIndex();
         int packetId = DefinedPacket.readVarInt( packet );
@@ -171,6 +179,7 @@ class EntityMap_1_11 extends EntityMap
             ProxiedPlayer player;
             if ( ( player = BungeeCord.getInstance().getPlayer( uuid ) ) != null )
             {
+                wrapper.destroyCompressed();
                 int previous = packet.writerIndex();
                 packet.readerIndex( readerIndex );
                 packet.writerIndex( readerIndex + packetIdLength );

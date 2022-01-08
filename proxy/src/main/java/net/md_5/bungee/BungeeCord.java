@@ -18,6 +18,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
+import io.netty.util.internal.PlatformDependent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;

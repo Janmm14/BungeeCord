@@ -42,6 +42,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
 
             try
             {
+                ByteBuf slice = in.slice();
                 zlib.process( in, decompressed );
                 Preconditions.checkState( decompressed.readableBytes() == size, "Decompressed packet size mismatch" );
 
@@ -51,7 +52,7 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
                     out.add( decompressed );
                 } else
                 {
-                    out.add( new PacketWrapper( null, decompressed, in.slice().retain() ) );
+                    out.add( new PacketWrapper( null, decompressed, slice.retain() ) );
                 }
                 decompressed = null;
             } finally

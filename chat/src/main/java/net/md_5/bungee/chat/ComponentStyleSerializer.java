@@ -77,33 +77,40 @@ public class ComponentStyleSerializer implements JsonSerializer<ComponentStyle>,
     {
         ComponentStyleBuilder builder = ComponentStyle.builder();
         JsonObject object = json.getAsJsonObject();
-        if ( object.has( "bold" ) )
+        JsonElement bold = object.get( "bold" );
+        if ( bold != null )
         {
-            builder.bold( getAsBoolean( object.get( "bold" ) ) );
+            builder.bold( getAsBoolean( bold ) );
         }
-        if ( object.has( "italic" ) )
+        JsonElement italic = object.get( "italic" );
+        if ( italic != null )
         {
-            builder.italic( getAsBoolean( object.get( "italic" ) ) );
+            builder.italic( getAsBoolean( italic ) );
         }
-        if ( object.has( "underlined" ) )
+        JsonElement underlined = object.get( "underlined" );
+        if ( underlined != null )
         {
-            builder.underlined( getAsBoolean( object.get( "underlined" ) ) );
+            builder.underlined( getAsBoolean( underlined ) );
         }
-        if ( object.has( "strikethrough" ) )
+        JsonElement strikethrough = object.get( "strikethrough" );
+        if ( strikethrough != null )
         {
-            builder.strikethrough( getAsBoolean( object.get( "strikethrough" ) ) );
+            builder.strikethrough( getAsBoolean( strikethrough ) );
         }
-        if ( object.has( "obfuscated" ) )
+        JsonElement obfuscated = object.get( "obfuscated" );
+        if ( obfuscated != null )
         {
-            builder.obfuscated( getAsBoolean( object.get( "obfuscated" ) ) );
+            builder.obfuscated( getAsBoolean( obfuscated ) );
         }
-        if ( object.has( "color" ) )
+        JsonElement color = object.get( "color" );
+        if ( color != null )
         {
-            builder.color( ChatColor.of( object.get( "color" ).getAsString() ) );
+            builder.color( ChatColor.of( color.getAsString() ) );
         }
-        if ( object.has( "font" ) )
+        JsonElement font = object.get( "font" );
+        if ( font != null )
         {
-            builder.font( object.get( "font" ).getAsString() );
+            builder.font( font.getAsString() );
         }
         return builder.build();
     }

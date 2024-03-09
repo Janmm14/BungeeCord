@@ -20,6 +20,7 @@ import net.md_5.bungee.api.chat.ScoreComponent;
 import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.hover.content.Content;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.EntitySerializer;
 import net.md_5.bungee.api.chat.hover.content.Item;
@@ -158,9 +159,19 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         return gson.toJsonTree( style );
     }
 
-    public static String toString(Object object)
+    public static String toString(Object content)
     {
-        return gson.toJson( object );
+        return gson.toJson( content );
+    }
+
+    public static String toString(Content content)
+    {
+        return gson.toJson( content );
+    }
+
+    public static String toString(JsonElement element)
+    {
+        return gson.toJson( element );
     }
 
     public static String toString(BaseComponent component)

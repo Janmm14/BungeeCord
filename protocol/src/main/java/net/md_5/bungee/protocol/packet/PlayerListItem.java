@@ -11,10 +11,8 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.data.PlayerPublicKey;
 import net.md_5.bungee.protocol.data.Property;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
-import se.llbit.nbt.SpecificTag;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -147,7 +145,7 @@ public class PlayerListItem extends DefinedPacket
         Integer ping;
 
         // ADD_PLAYER & UPDATE_DISPLAY_NAME
-        Deserializable<Either<String, SpecificTag>, BaseComponent> displayNameRaw;
+        ChatDeserializable displayNameRaw;
 
         public BaseComponent getDisplayName()
         {
@@ -165,7 +163,7 @@ public class PlayerListItem extends DefinedPacket
                 this.displayNameRaw = null;
                 return;
             }
-            this.displayNameRaw = new NoOrigDeserializable<>( displayName );
+            this.displayNameRaw = new ChatComponentDeserializable( displayName );
         }
     }
 }

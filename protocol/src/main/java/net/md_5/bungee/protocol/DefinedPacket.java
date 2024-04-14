@@ -21,6 +21,8 @@ import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentStyle;
+import net.md_5.bungee.protocol.util.Either;
+import net.md_5.bungee.protocol.util.TagUtil;
 import se.llbit.nbt.ErrorTag;
 import se.llbit.nbt.NamedTag;
 import se.llbit.nbt.SpecificTag;

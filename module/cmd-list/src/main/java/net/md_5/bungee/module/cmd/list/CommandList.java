@@ -52,7 +52,7 @@ public class CommandList extends Command implements TabExecutor
             {
                 players.add( player.getDisplayName() );
             }
-            Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
+            players.sort( String.CASE_INSENSITIVE_ORDER );
 
             BaseComponent baseComponent = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), players.size(), String.join( ChatColor.RESET + ", ", players ) ) ).build();
 

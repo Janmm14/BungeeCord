@@ -25,9 +25,9 @@ import net.md_5.bungee.api.chat.ComponentStyle;
 import net.md_5.bungee.protocol.data.NumberFormat;
 import net.md_5.bungee.protocol.data.PlayerPublicKey;
 import net.md_5.bungee.protocol.data.Property;
-import net.md_5.bungee.protocol.util.Deserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
+import net.md_5.bungee.protocol.util.ChatFunctionDeserializable;
 import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.FunctionDeserializable;
 import net.md_5.bungee.protocol.util.TagUtil;
 import se.llbit.nbt.ErrorTag;
 import se.llbit.nbt.NamedTag;
@@ -110,28 +110,28 @@ public abstract class DefinedPacket
         return s;
     }
 
-    public static Either<String, Deserializable<Either<String, SpecificTag>, BaseComponent>> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
+    public static Either<String, ChatDeserializable> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string)
     {
         return ( string ) ? Either.left( readString( buf ) ) : Either.right( readBaseComponent( buf, protocolVersion ) );
     }
 
-    public static Deserializable<Either<String, SpecificTag>, BaseComponent> readBaseComponent(ByteBuf buf, int protocolVersion)
+    public static ChatDeserializable readBaseComponent(ByteBuf buf, int protocolVersion)
     {
         return readBaseComponent( buf, Short.MAX_VALUE, protocolVersion );
     }
 
-    public static Deserializable<Either<String, SpecificTag>, BaseComponent> readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
+    public static ChatDeserializable readBaseComponent(ByteBuf buf, int maxStringLength, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {
             SpecificTag nbt = (SpecificTag) readTag( buf, protocolVersion );
 
-            return new FunctionDeserializable<>( Either.right( nbt ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( TagUtil.toJson( ov.getRight() ) ) );
+            return new ChatFunctionDeserializable( Either.right( nbt ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( TagUtil.toJson( ov.getRight() ) ) );
         } else
         {
             String string = readString( buf, maxStringLength );
 
-            return new FunctionDeserializable<>( Either.left( string ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( ov.getLeft() ) );
+            return new ChatFunctionDeserializable( Either.left( string ), (ov) -> ChatSerializer.forVersion( protocolVersion ).deserialize( ov.getLeft() ) );
         }
     }
 
@@ -164,7 +164,7 @@ public abstract class DefinedPacket
         return ChatSerializer.forVersion( protocolVersion ).deserializeStyle( json );
     }
 
-    public static void writeEitherBaseComponent(Either<String, Deserializable<Either<String, SpecificTag>, BaseComponent>> message, ByteBuf buf, int protocolVersion)
+    public static void writeEitherBaseComponent(Either<String, ChatDeserializable> message, ByteBuf buf, int protocolVersion)
     {
         if ( message.isLeft() )
         {
@@ -175,7 +175,7 @@ public abstract class DefinedPacket
         }
     }
 
-    public static void writeBaseComponent(Deserializable<Either<String, SpecificTag>, BaseComponent> message, ByteBuf buf, int protocolVersion)
+    public static void writeBaseComponent(ChatDeserializable message, ByteBuf buf, int protocolVersion)
     {
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3 )
         {

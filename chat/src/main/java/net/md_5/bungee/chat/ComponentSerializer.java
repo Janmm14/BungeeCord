@@ -159,6 +159,12 @@ public class ComponentSerializer implements JsonDeserializer<BaseComponent>
         return gson.toJsonTree( style );
     }
 
+    /**
+     * @param object the object to serialize
+     * @return the JSON string representation of the object
+     * @deprecated Error-prone, be careful which object you input here
+     */
+    @Deprecated
     public static String toString(Object object)
     {
         return gson.toJson( object );

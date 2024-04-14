@@ -10,10 +10,8 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.data.NumberFormat;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
-import se.llbit.nbt.SpecificTag;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +27,7 @@ public class ScoreboardScore extends DefinedPacket
     private byte action;
     private String scoreName;
     private int value;
-    private Deserializable<Either<String, SpecificTag>, BaseComponent> displayNameRaw;
+    private ChatDeserializable displayNameRaw;
     private NumberFormat numberFormat;
 
     @Override
@@ -107,6 +105,6 @@ public class ScoreboardScore extends DefinedPacket
             this.displayNameRaw = null;
             return;
         }
-        this.displayNameRaw = new NoOrigDeserializable<>( displayName );
+        this.displayNameRaw = new ChatComponentDeserializable( displayName );
     }
 }

@@ -8,10 +8,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.util.Deserializable;
-import net.md_5.bungee.protocol.util.Either;
-import net.md_5.bungee.protocol.util.NoOrigDeserializable;
-import se.llbit.nbt.SpecificTag;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
+import net.md_5.bungee.protocol.util.ChatDeserializable;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +20,7 @@ public class Title extends DefinedPacket
     private Action action;
 
     // TITLE & SUBTITLE
-    private Deserializable<Either<String, SpecificTag>, BaseComponent> textRaw;
+    private ChatDeserializable textRaw;
 
     // TIMES
     private int fadeIn;
@@ -142,6 +140,6 @@ public class Title extends DefinedPacket
             this.textRaw = null;
             return;
         }
-        this.textRaw = new NoOrigDeserializable<>( text );
+        this.textRaw = new ChatComponentDeserializable( text );
     }
 }

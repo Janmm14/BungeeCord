@@ -64,6 +64,7 @@ import net.md_5.bungee.protocol.packet.ShowDialog;
 import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.Transfer;
+import net.md_5.bungee.protocol.util.ChatComponentDeserializable;
 import net.md_5.bungee.protocol.util.Either;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
@@ -460,7 +461,7 @@ public final class UserConnection implements ProxiedPlayer
                 getName(), BaseComponent.toLegacyText( reason )
             } );
 
-            ch.close( new Kick( reason ) );
+            ch.close( new Kick( new ChatComponentDeserializable( reason ) ) );
 
             if ( server != null )
             {
@@ -547,7 +548,7 @@ public final class UserConnection implements ProxiedPlayer
             {
                 net.md_5.bungee.protocol.packet.Title title = new net.md_5.bungee.protocol.packet.Title();
                 title.setAction( net.md_5.bungee.protocol.packet.Title.Action.ACTIONBAR );
-                title.setText( message );
+                title.setText( new ChatComponentDeserializable( message ) );
                 sendPacketQueued( title );
                 return;
             }
@@ -561,7 +562,7 @@ public final class UserConnection implements ProxiedPlayer
                 position = ChatMessageType.SYSTEM;
             }
 
-            sendPacketQueued( new SystemChat( message, position.ordinal() ) );
+            sendPacketQueued( new SystemChat( new ChatComponentDeserializable( message ), position.ordinal() ) );
         } else
         {
             sendPacketQueued( new Chat( chatSerializer.toString( message ), (byte) position.ordinal(), sender ) );
@@ -753,8 +754,8 @@ public final class UserConnection implements ProxiedPlayer
         footer = ChatComponentTransformer.getInstance().transform( this, true, footer );
 
         sendPacketQueued( new PlayerListHeaderFooter(
-                header,
-                footer
+                new ChatComponentDeserializable( header ),
+                new ChatComponentDeserializable( footer )
         ) );
     }
 

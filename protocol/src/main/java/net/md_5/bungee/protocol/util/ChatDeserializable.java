@@ -5,4 +5,8 @@ import se.llbit.nbt.SpecificTag;
 
 public interface ChatDeserializable extends Deserializable<Either<String, SpecificTag>, BaseComponent>
 {
+    default ChatNewDeserializable cloneAsNew()
+    {
+        return new ChatNewComponentDeserializable( get() );
+    }
 }
